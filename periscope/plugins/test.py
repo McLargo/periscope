@@ -18,7 +18,6 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import TheSubDB
-import BierDopje
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -26,20 +25,13 @@ logging.basicConfig(level=logging.DEBUG)
 filename = "/burn/30.Rock.S05E16.HDTV.XviD-LOL.avi"
 
 p = TheSubDB.TheSubDB(None, None)
-subfname = filename[:-3]+"srt"
+subfname = filename[:-3] + "srt"
 logging.info("Processing %s" % filename)
 subs = p.process(filename, ["en", "pt"])
 
-print subs
+print(subs)
 
 if not subs:
-    p.uploadFile(filename, subfname, 'en')
+    p.uploadFile(filename, subfname, "en")
     subs = p.process(filename, ["en", "pt"])
-    print subs
-
-
-#bd = BierDopje.BierDopje()
-#subs = bd.process(filename, ["en"])
-
-
-
+    print(subs)

@@ -30,14 +30,17 @@ import SubtitleDatabase
 
 log = logging.getLogger(__name__)
 
-SS_LANGUAGES = {"en": "en",
-                "nl": "nl",
-                "pt": "pt",
-                "pt-br":"pt",
-                "no": "Norwegian",
-                "fr" : "French",
-                "es" : "Spanish",
-                "is" : "Icelandic"}
+SS_LANGUAGES = {
+    "en": "en",
+    "nl": "nl",
+    "pt": "pt",
+    "pt-br": "pt",
+    "no": "Norwegian",
+    "fr": "French",
+    "es": "Spanish",
+    "is": "Icelandic",
+}
+
 
 class TheSubDB(SubtitleDatabase.SubtitleDB):
     url = "http://thesubdb.com/"
@@ -46,100 +49,105 @@ class TheSubDB(SubtitleDatabase.SubtitleDB):
 
     def __init__(self, config, cache_folder_path):
         super(TheSubDB, self).__init__(SS_LANGUAGES)
-        self.base_url = 'http://api.thesubdb.com/?{0}'
-            
+        self.base_url = "http://api.thesubdb.com/?{0}"
+
     def process(self, filepath, langs):
-        ''' main method to call on the plugin, pass the filename and the wished 
-        languages and it will query the subtitles source '''
+        """ main method to call on the plugin, pass the filename and the wished
+        languages and it will query the subtitles source """
         # Get the hash
         filehash = self.get_hash(filepath)
-        log.debug('File hash : %s' % filehash)
+        log.debug("File hash : %s" % filehash)
         # Make the search
-        params = {'action' : 'search', 'hash' : filehash }
+        params = {"action": "search", "hash": filehash}
         search_url = self.base_url.format(urllib.urlencode(params))
-        log.debug('Query URL : %s' % search_url)
+        log.debug("Query URL : %s" % search_url)
         req = urllib2.Request(search_url)
-        req.add_header('User-Agent', self.user_agent)
+        req.add_header("User-Agent", self.user_agent)
         subs = []
-        try : 
+        try:
             page = urllib2.urlopen(req, timeout=5)
             content = page.readlines()
-            plugin_langs = content[0].split(',')
-            print content[0]
-            for lang in plugin_langs :
+            plugin_langs = content[0].split(",")
+            print(content[0])
+            for lang in plugin_langs:
                 if not langs or lang in langs:
                     result = {}
-                    result['release'] = filepath
-                    result['lang'] = lang
-                    result['link'] = self.base_url.format(urllib.urlencode({'action':'download', 'hash':filehash , 'language' :lang}))
-                    result['page'] = result['link']
+                    result["release"] = filepath
+                    result["lang"] = lang
+                    result["link"] = self.base_url.format(
+                        urllib.urlencode(
+                            {"action": "download", "hash": filehash, "language": lang}
+                        )
+                    )
+                    result["page"] = result["link"]
                     subs.append(result)
             return subs
-        except urllib2.HTTPError, e :
-            if e.code == 404 : # No result found
+        except urllib2.HTTPError, e:
+            if e.code == 404:  # No result found
                 return subs
             else:
-                log.exception('Error occured : %s' % e)
-        
+                log.exception("Error occured : %s" % e)
 
     def get_hash(self, name):
-        '''this hash function receives the name of the file and returns the hash code'''
+        """this hash function receives the name of the file and returns the hash code"""
         readsize = 64 * 1024
-        with open(name, 'rb') as f:
+        with open(name, "rb") as f:
             size = os.path.getsize(name)
             data = f.read(readsize)
             f.seek(-readsize, os.SEEK_END)
             data += f.read(readsize)
         return hashlib.md5(data).hexdigest()
-            
+
     def createFile(self, subtitle):
-        '''pass the URL of the sub and the file it matches, will unzip it
-        and return the path to the created file'''
+        """pass the URL of the sub and the file it matches, will unzip it
+        and return the path to the created file"""
         suburl = subtitle["link"]
         videofilename = subtitle["filename"]
-        srtfilename = videofilename.rsplit(".", 1)[0] + '.srt'
+        srtfilename = videofilename.rsplit(".", 1)[0] + ".srt"
         self.downloadFile(suburl, srtfilename)
         return srtfilename
 
     def downloadFile(self, url, srtfilename):
-        ''' Downloads the given url to the given filename '''
+        """ Downloads the given url to the given filename """
         req = urllib2.Request(url)
-        req.add_header('User-Agent', self.user_agent)
-        
+        req.add_header("User-Agent", self.user_agent)
+
         f = urllib2.urlopen(req)
         dump = open(srtfilename, "wb")
         dump.write(f.read())
         dump.close()
         f.close()
-        log.debug("Download finished to file %s. Size : %s"%(srtfilename,os.path.getsize(srtfilename)))
-        
+        log.debug(
+            "Download finished to file %s. Size : %s"
+            % (srtfilename, os.path.getsize(srtfilename))
+        )
+
     def uploadFile(self, filepath, subpath, lang):
         # Get the hash
         filehash = self.get_hash(filepath)
-        log.debug('File hash : %s' % filehash)
-        
+        log.debug("File hash : %s" % filehash)
+
         # Upload the subtitle
-        params = {'action' : 'upload', 'hash' : filehash}
+        params = {"action": "upload", "hash": filehash}
         upload_url = self.base_url.format(urllib.urlencode(params))
-        log.debug('Query URL : %s' % upload_url)
+        log.debug("Query URL : %s" % upload_url)
         sub = open(subpath, "r")
-        '''content = sub.read()
+        """content = sub.read()
         sub.close()
         fd = StringIO.StringIO()
         fd.name = '%s.srt' % filehash
-        fd.write(content)'''
-        
-        data = urllib.urlencode({'hash' : filehash, 'file' : sub})
+        fd.write(content)"""
+
+        data = urllib.urlencode({"hash": filehash, "file": sub})
         req = urllib2.Request(upload_url, data)
-        req.add_header('User-Agent', self.user_agent)
-        try : 
+        req.add_header("User-Agent", self.user_agent)
+        try:
             page = urllib2.urlopen(req, data, timeout=5)
             log.debug(page.readlines())
-        except urllib2.HTTPError, e :
-            log.exception('Error occured while uploading : %s' % e)
-            #log.info(fd.name)
-            #log.info(fd.len)
+        except urllib2.HTTPError, e:
+            log.exception("Error occured while uploading : %s" % e)
+            # log.info(fd.name)
+            # log.info(fd.len)
         finally:
             pass
-            #fd.close()
-        
+            # fd.close()

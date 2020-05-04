@@ -22,17 +22,17 @@ from Subtitulos import Subtitulos
 from Podnapisi import Podnapisi
 from TheSubDB import TheSubDB
 from SubsWiki import SubsWiki
-from LegendasTV import LegendasTV
 from SubDivX import SubDivX
 
-#from SubtitleSource import SubtitleSource # require a key in the config file
+# from SubtitleSource import SubtitleSource # require a key in the config file
+# from LegendasTV import LegendasTV # require a key in the config file
 
 # Not working anymore (download fails)
-#from SubScene import SubScene
+# from SubScene import SubScene
 
 # Don't want to be included
-#from Addic7ed import Addic7ed
-#from TvSubtitles import TvSubtitles
+# from Addic7ed import Addic7ed
+# from TvSubtitles import TvSubtitles
 
 # API not working
-#from Podnapisi2 import Podnapisi
+# from Podnapisi2 import Podnapisi

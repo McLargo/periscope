@@ -19,10 +19,9 @@
 
 import unittest
 import logging
-import os
 
 logging.basicConfig(level=logging.DEBUG)
-'''
+"""
 class TVShowRegexTestCase(unittest.TestCase):
     def runTest(self):
         import OpenSubtitles
@@ -86,7 +85,7 @@ class OpenSubtitlesTestCase(unittest.TestCase):
         subdb = OpenSubtitles.OpenSubtitles()
         # movie hash if for night watch : http://trac.opensubtitles.org/projects/opensubtitles/wiki/XMLRPC
         results = subdb.query('Night.Watch.2004.CD1.DVDRiP.XViD-FiCO.avi', moviehash="09a2c497663259cb", bytesize="733589504")
-        
+
         assert len(results) > 0, 'No result found for Night.Watch.2004.CD1.DVDRiP.XViD-FiCO.avi by movie hash'
 
 class OpenSubtitlesTestCase(unittest.TestCase):
@@ -108,10 +107,10 @@ class OpenSubtitlesTestCaseFileName(unittest.TestCase):
         #filename = 'The.Office.US.S06E01.HDTV.XviD-2HD.[VTV]'
         #filenames.append('Marley & Me.2008-L33t-DvDRiP.DivX.NoRaR')
         filenames.append("Twilight[2008]DvDrip-aXXo")
-        
+
         for filename in filenames:
             results = subdb.query(filename)
-        
+
             if results :
                 print "Found %s results" %len(results)
                 print "Showing first for unit test::"
@@ -181,20 +180,26 @@ class Podnapisi2TestCase(unittest.TestCase):
         results = subdb.process("/burn/Entourage.S07E01.Stunted.HDTV.XviD-FQM.avi", None)
         print results
         assert len(results) > 5, "Not enough result could be found for The.Office.US.S06E01.HDTV.XviD-2HD and no languages (expected 6)"
-'''
+"""
+
 class PodnapisiTestCase(unittest.TestCase):
     def runTest(self):
         import Podnapisi
+
         subdb = Podnapisi.Podnapisi(None, None)
         results = subdb.process("Game.Of.Thrones.S01E10.mkv", None)
-        assert len(results) > 5, "Not enough result could be found for Community.S01E01.Pilot.HDTV.XviD-FQM.avi and no languages (expected 6)"
-        
+        assert (
+            len(results) > 5
+        ), "Not enough result could be found for Community.S01E01.Pilot.HDTV.XviD-FQM.avi and no languages (expected 6)"
+
         # Download the first
         # Expected by the prog
         results[0]["filename"] = "/tmp/testPodnapisi.avi"
         subdb.createFile(results[0])
-        #TODO Check that /tmp/testPodnapisi.srt exists
-'''
+        # TODO Check that /tmp/testPodnapisi.srt exists
+
+
+"""
 class PodnapisiTestCaseMultiPart(unittest.TestCase):
     def runTest(self):
         import Podnapisi
@@ -232,7 +237,7 @@ class BierDopjeTestCase(unittest.TestCase):
         results = subdb.query(video)
         print results
         assert len(results) > 0, "No result could be found for %s and no languages" %( video )
-'''
+"""
 
 if __name__ == "__main__":
     unittest.main()
